@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キャラクター生成</title>
+    <script src="/static/suggestions.js" defer></script>
+     <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #fff8f0;
+            padding: 40px;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        label {
+            margin-top: 15px;
+            display: block;
+            font-weight: bold;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .flex-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex-group input {
+            flex: 1;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #e76f51;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #d65a3c;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #e76f51;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 キャラクターを作成しよう！</h1>
+   
+    {% if character %}
+        <h2>🎲 ランダム生成された候補:</h2>
+        <ul>
+            <li>種族: {{ character.race }}</li>
+            <li>職業: {{ character.job }}</li>
+            <li>性格: {{ character.personality }}</li>
+            <li>スキル: {{ character.skill }}</li>
+        </ul>
+         <!-- ★このフォームを追加：ランダム生成キャラを元に送信 -->
+    <form action="/generate" method="post">
+        <input type="hidden" name="race" value="{{ character.race }}">
+        <input type="hidden" name="job" value="{{ character.job }}">
+        <input type="hidden" name="personality" value="{{ character.personality }}">
+        <input type="hidden" name="skill" value="{{ character.skill }}">
+        <input type="submit" value="生成する">
+    </form>
+    {% endif %}
+   
+<a href="/custom" class="button">🛠 自分で設定して生成する</a>
+
+<a href="/hybrid">🧩 自由入力で生成する</a>
+
+
+ 
+
+<script>
+    async function suggestRelated() {
+        const input = document.getElementById("custom_input").value;
+        const res = await fetch(`/related?q=${encodeURIComponent(input)}`);
+        const data = await res.json();
+
+        const suggestionBox = document.getElementById("suggestions");
+        suggestionBox.innerHTML = "";
+
+        if (data.suggestions.length > 0) {
+            suggestionBox.innerHTML = "🔎 関連語: " + data.suggestions.join(", ");
+        }
+    }
+    
+</script>
+
+
+</body>
+</html>

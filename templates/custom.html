@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キャラを自由に設定</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", sans-serif;
+            background: #f0f8ff;
+            padding: 40px;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005fa3;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007acc;
+        }
+    </style>
+</head>
+<body>
+    <form method="POST" action="/custom_generate">
+        <h2>🔧 キャラをカスタマイズ</h2>
+
+        <label for="race">種族</label>
+        <input type="text" name="race" placeholder="例: エルフ">
+
+        <label for="job">職業</label>
+        <input type="text" name="job" placeholder="例: 剣士">
+
+        <label for="personality">性格</label>
+        <input type="text" name="personality" placeholder="例: 冷静">
+
+        <label for="skill">スキル</label>
+        <input type="text" name="skill" placeholder="例: 炎の剣">
+
+         <label>自由記述（キャラの背景や特徴）:</label>
+<textarea name="description" rows="4" placeholder="例: 幼いころに故郷を失い、復讐のために戦っている。目標は世界の均衡を保つこと。口癖は『やれやれだぜ』。"></textarea>
+
+<p style="font-size: 0.9em; color: gray;">✍️ 設定補助テンプレ: 過去・目標・口癖・趣味・トラウマ・口調などを自由に書いてください。</p>
+        <button type="submit">✨ キャラを生成する</button>
+
+        <a href="/">🏠 トップページへ戻る</a>
+    </form>
+</body>
+</html>

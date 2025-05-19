@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キャラカスタム（ハイブリッド）</title>
+    <style>
+    body {
+        background-color: #e8f5e9;
+        font-family: "Helvetica Neue", sans-serif;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #2ecc71; /* 緑 */
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        color: #1e824c; /* 濃い緑 */
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        font-size: 1.1em;
+    }
+
+    li {
+        margin-bottom: 8px;
+    }
+
+    img {
+        display: block;
+        margin: 20px auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    a.button {
+        display: inline-block;
+        padding: 12px 25px;
+        margin: 10px;
+        background-color: #2ecc71; /* 緑 */
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    a.button:hover {
+        background-color: #27ae60; /* 濃い緑 */
+    }
+
+    footer {
+        text-align: center;
+        color: #999;
+        margin-top: 50px;
+        font-size: 0.9em;
+    }
+</style>
+
+</head>
+<body>
+    <form method="POST" action="/hybrid_generate">
+        <h2>🧩 プリセット + 自由入力 キャラ生成</h2>
+
+        <label>種族</label>
+        <div class="flex-group">
+            <select name="race_preset">
+                <option value="">選択してください</option>
+                <option value="エルフ">エルフ</option>
+                <option value="人間">人間</option>
+                <option value="悪魔">悪魔</option>
+                <option value="獣人">獣人</option>
+            </select>
+            <input type="text" name="race_custom" placeholder="自由入力（例: 精霊）">
+        </div>
+
+        <label>職業</label>
+        <div class="flex-group">
+            <select name="job_preset">
+                <option value="">選択してください</option>
+                <option value="戦士">戦士</option>
+                <option value="魔法使い">魔法使い</option>
+                <option value="忍者">忍者</option>
+                <option value="銃士">銃士</option>
+            </select>
+            <input type="text" name="job_custom" placeholder="自由入力（例: 錬金術師）">
+        </div>
+
+        <label>性格</label>
+        <div class="flex-group">
+            <select name="personality_preset">
+                <option value="">選択してください</option>
+                <option value="明るい">明るい</option>
+                <option value="冷静">冷静</option>
+                <option value="ツンデレ">ツンデレ</option>
+                <option value="お調子者">お調子者</option>
+            </select>
+            <input type="text" name="personality_custom" placeholder="自由入力（例: 無口）">
+        </div>
+
+        <label>スキル</label>
+        <input type="text" name="skill" placeholder="例: 炎を操る・時間停止・毒の霧">
+
+        <label>自由記述（キャラの背景や特徴）:</label>
+<textarea name="description" rows="4" placeholder="例: 幼いころに故郷を失い、復讐のために戦っている。目標は世界の均衡を保つこと。口癖は『やれやれだぜ』。"></textarea>
+
+<p style="font-size: 0.9em; color: gray;">✍️ 設定補助テンプレ: 過去・目標・口癖・趣味・トラウマ・口調などを自由に書いてください。</p>
+        <button type="submit">🚀 キャラ生成スタート！</button>
+        <a href="/">🏠 トップに戻る</a>
+    </form>
+</body>
+</html>

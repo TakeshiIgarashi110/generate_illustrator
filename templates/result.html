@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>生成結果 | キャラメーカー</title>
+    <style>
+    body {
+        background-color: #fffbea;
+        font-family: "Helvetica Neue", sans-serif;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #f1c40f; /* 黄色 */
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #fffdf4;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        color: #c49100; /* 濃い黄色 */
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        font-size: 1.1em;
+    }
+
+    li {
+        margin-bottom: 8px;
+    }
+
+    img {
+        display: block;
+        margin: 20px auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    a.button {
+        display: inline-block;
+        padding: 12px 25px;
+        margin: 10px;
+        background-color: #f1c40f; /* 黄色 */
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    a.button:hover {
+        background-color: #d4ac0d; /* 濃いめ黄色 */
+    }
+
+    footer {
+        text-align: center;
+        color: #999;
+        margin-top: 50px;
+        font-size: 0.9em;
+    }
+</style>
+
+</head>
+<body>
+    <h1>🧙‍♂️ キャラ画像生成完了！</h1>
+    <ul>
+        <li>種族: {{ character.race }}</li>
+        <li>職業: {{ character.job }}</li>
+        <li>性格: {{ character.personality }}</li>
+        <li>スキル: {{ character.skill }}</li>
+    </ul>
+    <img src="{{ image_path }}" alt="生成された画像" width="512">
+    <br>
+    <a href="/" class="button">🔄 もう一度生成する</a>
+    <h2>📊 選ばれた要素の集計</h2>
+    <canvas id="chart" width="400" height="200"></canvas>
+    <script>
+        fetch("/stats")
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById("chart").getContext("2d");
+                new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: "選択回数",
+                            data: data.counts,
+                            backgroundColor: "rgba(75, 192, 192, 0.6)"
+                        }]
+                    }
+                });
+            });
+    </script>
+  <a href="/" class="button">🏠 トップページに戻る</a>
+</body>
+</html>
