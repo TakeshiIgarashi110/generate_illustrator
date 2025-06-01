@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>生成結果 | キャラメーカー</title>
+    <title>GeneraTor - 生成結果</title>
     <style>
     body {
         background-color: #fffbea;
@@ -77,9 +77,12 @@
         font-size: 0.9em;
     }
 </style>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <h1 style="font-weight: bold; font-size: 2.2em; color: #e76f51;">
+  🎰 <span style="color: #264653;">Genera</span><span style="color: #2a9d8f;">Tor</span> - キャラガチャ
+</h1>
     <h1>🧙‍♂️ キャラ画像生成完了！</h1>
     <ul>
         <li>種族: {{ character.race }}</li>
@@ -110,6 +113,33 @@
                 });
             });
     </script>
+    {% if summary %}
+  <div class="card">
+    <h2>📊 選ばれた要素の集計</h2>
+    <ul>
+      <li>種族トップ3:
+        {% for item in summary.race[:3] %}
+          {{ item[0] }} ({{ item[1] }}){% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </li>
+      <li>職業トップ3:
+        {% for item in summary.job[:3] %}
+          {{ item[0] }} ({{ item[1] }}){% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </li>
+      <li>性格トップ3:
+        {% for item in summary.personality[:3] %}
+          {{ item[0] }} ({{ item[1] }}){% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </li>
+      <li>スキルトップ3:
+        {% for item in summary.skill[:3] %}
+          {{ item[0] }} ({{ item[1] }}){% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </li>
+    </ul>
+  </div>
+{% endif %}
   <a href="/" class="button">🏠 トップページに戻る</a>
 </body>
 </html>

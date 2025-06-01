@@ -1,14 +1,16 @@
 from flask import Flask, render_template, request, jsonify
-import random
-import requests
-import base64
+import random, csv, base64, requests
 from io import BytesIO
 from PIL import Image
+from collections import Counter
 from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
-import csv
-from collections import Counter
+
+# Stability APIキー（実際のあなたのAPIキーに置き換えてください）
+API_KEY = "sk-sVzqiXORQ9ZSrDdID62F7kxzkN32tk2BHJpWG9WR2lRUVyc5"
+
+# 関連語辞書（サジェスト用）
 related_words = {
     "黒髪": ["ロング", "赤目", "和風", "陰キャ", "学ラン"],
     "金髪": ["ツインテール", "ハーフ", "明るい", "王族", "アイドル"],
@@ -17,38 +19,17 @@ related_words = {
     "炎": ["火山", "熱血", "赤", "ドラゴン"]
 }
 
-
-# 選択内容をCSVに保存
-def save_character_to_csv(character):
-    with open("character_stats.csv", mode="a", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow([character["race"], character["job"], character["personality"], character["skill"]])
-
-@app.route("/stats")
-def stats():
-    stats_counter = Counter()
-    try:
-        with open("character_stats.csv", encoding="utf-8") as file:
-            reader = csv.reader(file)
-            for row in reader:
-                stats_counter.update(row)
-    except FileNotFoundError:
-        return jsonify({"labels": [], "counts": []})
-
-    labels = list(stats_counter.keys())
-    counts = list(stats_counter.values())
-    return jsonify({"labels": labels, "counts": counts})
-
-# キャラ設定リスト
+# キャラ設定用プリセット
 races = ["エルフ", "ドワーフ", "人間", "魔族", "獣人"]
 jobs = ["剣士", "魔法使い", "僧侶", "盗賊", "召喚士"]
 personalities = ["冷静", "熱血", "優しい", "無口", "陽気"]
 skills = ["炎の剣", "回復魔法", "ステルス", "時間停止", "召喚術"]
 
-# 翻訳してプロンプト生成
+# 翻訳
 def translate_to_english(text):
     return GoogleTranslator(source='ja', target='en').translate(text)
 
+# プロンプト生成
 def create_prompt(character):
     race = translate_to_english(character["race"])
     job = translate_to_english(character["job"])
@@ -57,7 +38,40 @@ def create_prompt(character):
     description = translate_to_english(character.get("description", ""))
     return f"An anime-style {race} {job}, {personality}, using {skill}, fantasy background. {description}"
 
+# 画像生成 (無料版対応)
+def generate_image(prompt):
+    url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
 
+    payload = {
+        "text_prompts": [
+            {"text": prompt}
+        ],
+        "cfg_scale": 7,
+        "height": 1024,
+        "width": 1024,
+        "samples": 1,
+        "steps": 30
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    response.raise_for_status()
+
+    result = response.json()
+    image_base64 = result["artifacts"][0]["base64"]
+    return image_base64
+
+# キャラ情報保存
+def save_character_to_csv(character):
+    with open("character_stats.csv", mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow([character["race"], character["job"], character["personality"], character["skill"]])
+
+# メインページ
 @app.route("/")
 def index():
     character = {
@@ -68,7 +82,7 @@ def index():
     }
     return render_template("index.html", character=character)
 
-
+# 通常生成
 @app.route("/generate", methods=["POST"])
 def generate():
     character = {
@@ -79,30 +93,25 @@ def generate():
     }
     prompt = create_prompt(character)
 
-    # 正しいColabのURLをここに貼る
-    url = "https://6a88-34-16-185-196.ngrok-free.app/generate"  # ← 実行後に出たURLに差し替え
-
     try:
-        response = requests.post(url, json={"prompt": prompt})
-        response.raise_for_status()  # 400/500 エラー時に例外化
-
-        img_data = response.json()["image"]
-        image = Image.open(BytesIO(base64.b64decode(img_data)))
+        img_b64 = generate_image(prompt)
+        image = Image.open(BytesIO(base64.b64decode(img_b64)))
         image_path = "static/generated.png"
         image.save(image_path)
-        save_character_to_csv(character)
 
-        return render_template("result.html", character=character, image_path=image_path)
-    except requests.exceptions.RequestException as e:
-        return f"リクエストエラーが発生しました: {e}"
+        save_character_to_csv(character)
+        summary = get_summary_data()
+
+        return render_template("result.html", character=character, image_path=image_path, summary=summary)
     except Exception as e:
-        return f"画像処理中にエラーが発生しました: {e}"
-    
-    return render_template("result.html", character=character, image_path=image_path)
+        return f"エラーが発生しました: {e}"
+
+# カスタムフォーム
 @app.route("/custom")
 def custom_form():
     return render_template("custom.html")
 
+# カスタム生成
 @app.route("/custom_generate", methods=["POST"])
 def custom_generate():
     character = {
@@ -113,26 +122,23 @@ def custom_generate():
     }
     prompt = create_prompt(character)
 
-    # Stable Diffusionに送信（既存と同様）
-    url = "https://6a88-34-16-185-196.ngrok-free.app/generate"
-    response = requests.post(url, json={"prompt": prompt})
-    img_data = response.json()["image"]
+    try:
+        img_b64 = generate_image(prompt)
+        image = Image.open(BytesIO(base64.b64decode(img_b64)))
+        image_path = "static/generated.png"
+        image.save(image_path)
+        return render_template("result.html", character=character, image_path=image_path)
+    except Exception as e:
+        return f"カスタム生成中にエラーが発生: {e}"
 
-    # base64デコードして保存
-    image = Image.open(BytesIO(base64.b64decode(img_data)))
-    image_path = "static/generated.png"
-    image.save(image_path)
-
-    return render_template("result.html", character=character, image_path=image_path)
-
+# ハイブリッドフォーム
 @app.route("/hybrid")
 def hybrid_form():
     return render_template("hybrid.html")
 
-
+# ハイブリッド生成
 @app.route("/hybrid_generate", methods=["POST"])
 def hybrid_generate():
-    # プリセット + 自由入力を合成
     def merge(preset, custom):
         return custom if custom.strip() else preset
 
@@ -145,23 +151,46 @@ def hybrid_generate():
 
     prompt = create_prompt(character)
 
-    # 画像生成APIに送信
-    url = "https://6a88-34-16-185-196.ngrok-free.app/generate"  # ←実際のURLに置き換え
-    response = requests.post(url, json={"prompt": prompt})
-    img_data = response.json()["image"]
+    try:
+        img_b64 = generate_image(prompt)
+        image = Image.open(BytesIO(base64.b64decode(img_b64)))
+        image_path = "static/generated.png"
+        image.save(image_path)
+        return render_template("result.html", character=character, image_path=image_path)
+    except Exception as e:
+        return f"ハイブリッド生成中にエラーが発生: {e}"
 
-    # 画像保存処理
-    image = Image.open(BytesIO(base64.b64decode(img_data)))
-    image_path = "static/generated.png"
-    image.save(image_path)
-
-    return render_template("result.html", character=character, image_path=image_path)
-
+# 関連語サジェスト
 @app.route("/related")
 def related():
     query = request.args.get("q", "")
     suggestions = related_words.get(query, [])
     return jsonify({"suggestions": suggestions})
 
+# CSV集計
+def get_summary_data():
+    summary = {
+        "race": Counter(),
+        "job": Counter(),
+        "personality": Counter(),
+        "skill": Counter()
+    }
+
+    try:
+        with open("character_stats.csv", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                summary["race"][row[0]] += 1
+                summary["job"][row[1]] += 1
+                summary["personality"][row[2]] += 1
+                summary["skill"][row[3]] += 1
+        return {
+            key: sorted(counter.items(), key=lambda x: x[1], reverse=True)
+            for key, counter in summary.items()
+        }
+    except FileNotFoundError:
+        return {key: [] for key in summary}
+
+# Flaskサーバー起動
 if __name__ == "__main__":
     app.run(debug=True)

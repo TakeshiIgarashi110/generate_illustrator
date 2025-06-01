@@ -1,114 +1,147 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>キャラクター生成</title>
-    <script src="/static/suggestions.js" defer></script>
-     <style>
-        body {
-            font-family: "Arial", sans-serif;
-            background-color: #fff8f0;
-            padding: 40px;
-        }
+  <meta charset="UTF-8">
+  <title>GeneraTor - キャラガチャ</title>
 
-        form {
-            background: white;
-            padding: 20px;
-            max-width: 600px;
-            margin: auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
 
-        label {
-            margin-top: 15px;
-            display: block;
-            font-weight: bold;
-        }
+  <script src="/static/suggestions.js" defer></script>
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      background-color: #fff8f0;
+      padding: 40px;
+      margin: 0;
+    }
 
-        select, input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
 
-        .flex-group {
-            display: flex;
-            gap: 10px;
-        }
+    .card {
+      background: white;
+      padding: 20px;
+      max-width: 600px;
+      margin: 30px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-        .flex-group input {
-            flex: 1;
-        }
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
 
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #e76f51;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    .card li {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
 
-        button:hover {
-            background-color: #d65a3c;
-        }
+    .card li:last-child {
+      border-bottom: none;
+    }
 
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #e76f51;
-        }
-    </style>
+    button, input[type="submit"] {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 1em;
+      background-color: #e76f51;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover, input[type="submit"]:hover {
+      background-color: #d65a3c;
+    }
+
+    .nav-links {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .nav-links a {
+      display: inline-block;
+      margin: 10px 15px;
+      color: #e76f51;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    #suggestions {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #666;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <h1>🎨 キャラクターを作成しよう！</h1>
-   
-    {% if character %}
-        <h2>🎲 ランダム生成された候補:</h2>
-        <ul>
-            <li>種族: {{ character.race }}</li>
-            <li>職業: {{ character.job }}</li>
-            <li>性格: {{ character.personality }}</li>
-            <li>スキル: {{ character.skill }}</li>
-        </ul>
-         <!-- ★このフォームを追加：ランダム生成キャラを元に送信 -->
-    <form action="/generate" method="post">
+
+  <h1 style="font-weight: bold; font-size: 2.2em; color: #e76f51;">
+  🎰 <span style="color: #264653;">Genera</span><span style="color: #2a9d8f;">Tor</span> - キャラガチャ
+</h1>
+<h2>🧙‍♂️ あなたのキャラをガチャで引こう！</h2>
+
+  {% if character %}
+    <div class="card">
+      <h2>🎲 ガチャ結果</h2>
+      <ul>
+        <li>種族: {{ character.race }}</li>
+        <li>職業: {{ character.job }}</li>
+        <li>性格: {{ character.personality }}</li>
+        <li>スキル: {{ character.skill }}</li>
+      </ul>
+
+      <!-- 画像生成フォーム -->
+      <form action="/generate" method="post">
         <input type="hidden" name="race" value="{{ character.race }}">
         <input type="hidden" name="job" value="{{ character.job }}">
         <input type="hidden" name="personality" value="{{ character.personality }}">
         <input type="hidden" name="skill" value="{{ character.skill }}">
-        <input type="submit" value="生成する">
-    </form>
-    {% endif %}
-   
-<a href="/custom" class="button">🛠 自分で設定して生成する</a>
+        <input type="submit" value="🎨 このキャラで画像生成">
+      </form>
 
-<a href="/hybrid">🧩 自由入力で生成する</a>
+      <!-- もう一回ガチャボタン -->
+      <form action="/" method="get">
+        <button type="submit">🔁 もう一回ガチャ！</button>
+      </form>
+    </div>
+  {% endif %}
 
+  <div class="nav-links">
+    <a href="/custom">🛠 自分で設定して生成</a>
+    <a href="/hybrid">🧩 自由入力で生成</a>
+  </div>
 
- 
+  <div id="suggestions"></div>
 
-<script>
+  <script>
     async function suggestRelated() {
-        const input = document.getElementById("custom_input").value;
-        const res = await fetch(`/related?q=${encodeURIComponent(input)}`);
-        const data = await res.json();
+      const input = document.getElementById("custom_input").value;
+      const res = await fetch(`/related?q=${encodeURIComponent(input)}`);
+      const data = await res.json();
 
-        const suggestionBox = document.getElementById("suggestions");
-        suggestionBox.innerHTML = "";
+      const suggestionBox = document.getElementById("suggestions");
+      suggestionBox.innerHTML = "";
 
-        if (data.suggestions.length > 0) {
-            suggestionBox.innerHTML = "🔎 関連語: " + data.suggestions.join(", ");
-        }
+      if (data.suggestions.length > 0) {
+        suggestionBox.innerHTML = "🔎 関連語: " + data.suggestions.join(", ");
+      }
     }
-    
-</script>
-
+  </script>
 
 </body>
 </html>
