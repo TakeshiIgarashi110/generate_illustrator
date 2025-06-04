@@ -1,4 +1,4 @@
-gunicorn==23.0.0      # 必ず必要なので記載する
-Flask==1.1.2
-requests==2.24.0
-deep-translator==1.11.4
+gunicorn==23.0.0  # 必ず必要なので記載する
+Flask>=2.2.5
+requests>=2.31.0
+deep-translator>=1.11.4
