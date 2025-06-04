@@ -65,8 +65,14 @@ def generate_image(prompt):
     image_base64 = result["artifacts"][0]["base64"]
     return image_base64
 
+import os
+
 # キャラ情報保存
 def save_character_to_csv(character):
+    # ファイルが存在しない場合は新規作成
+    if not os.path.exists("character_stats.csv"):
+        open("character_stats.csv", "w", encoding="utf-8").close()
+
     with open("character_stats.csv", mode="a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow([character["race"], character["job"], character["personality"], character["skill"]])
