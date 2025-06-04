@@ -11,6 +11,7 @@ app = Flask(__name__)
 # Stability APIキー（実際のあなたのAPIキーに置き換えてください）
 API_KEY = os.getenv("STABILITY_API_KEY")
 
+
 # 関連語辞書（サジェスト用）
 related_words = {
     "黒髪": ["ロング", "赤目", "和風", "陰キャ", "学ラン"],
@@ -198,3 +199,5 @@ def get_summary_data():
     except FileNotFoundError:
         return {key: [] for key in summary}
 
+if __name__ == "__main__":
+    app.run(debug=True)
