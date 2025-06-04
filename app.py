@@ -191,6 +191,3 @@ def get_summary_data():
     except FileNotFoundError:
         return {key: [] for key in summary}
 
-# Flaskサーバー起動
-if __name__ == "__main__":
-    app.run(debug=True)
