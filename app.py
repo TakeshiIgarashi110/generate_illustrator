@@ -4,11 +4,12 @@ from io import BytesIO
 from PIL import Image
 from collections import Counter
 from deep_translator import GoogleTranslator
+import os
 
 app = Flask(__name__)
 
 # Stability APIキー（実際のあなたのAPIキーに置き換えてください）
-API_KEY = "sk-sVzqiXORQ9ZSrDdID62F7kxzkN32tk2BHJpWG9WR2lRUVyc5"
+API_KEY = os.getenv("STABILITY_API_KEY")
 
 # 関連語辞書（サジェスト用）
 related_words = {
@@ -65,7 +66,7 @@ def generate_image(prompt):
     image_base64 = result["artifacts"][0]["base64"]
     return image_base64
 
-import os
+
 
 # キャラ情報保存
 def save_character_to_csv(character):
